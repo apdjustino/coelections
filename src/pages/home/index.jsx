@@ -10,7 +10,7 @@ const HomePage = () => {
   const [map, setMap] = useState(null);
   const [selectedMapData, setSelectedMapData] = useState({});
   const [selectedYear, setSelectedYear] = useState(2020);
-  const [selectedContest, setSelectedContest] = useState({});
+  const [selectedContest, setSelectedContest] = useState("");
 
   return (
     <div className={style.container}>
@@ -26,7 +26,7 @@ const HomePage = () => {
         selectedMapData={selectedMapData}
         setSelectedMapData={setSelectedMapData}
       />
-      <Sidebar selectedYear={selectedYear} setSelectedYear={setSelectedYear} />
+      <Sidebar selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedContest={selectedContest} setSelectedContest={setSelectedContest} />
     </div>
   );
 };
