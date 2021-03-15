@@ -23,7 +23,7 @@ const Map = ({ lat, lng, zoom, setLng, setLat, setZoom, setMap, selectedMapData,
     return () => map.remove();
   }, []);
 
-  return <div className={style.mapContainer} ref={mapContainer} />;
+  return <div className={style.map} ref={mapContainer} />;
 };
 
 export default Map;
