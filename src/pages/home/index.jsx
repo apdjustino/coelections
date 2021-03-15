@@ -9,7 +9,8 @@ const HomePage = () => {
   const [zoom, setZoom] = useState(11);
   const [map, setMap] = useState(null);
   const [selectedMapData, setSelectedMapData] = useState({});
-  console.log(selectedMapData);
+  const [selectedYear, setSelectedYear] = useState(2020);
+
   return (
     <div className={style.container}>
       <Map
@@ -24,7 +25,7 @@ const HomePage = () => {
         selectedMapData={selectedMapData}
         setSelectedMapData={setSelectedMapData}
       />
-      <Sidebar />
+      <Sidebar selectedYear={selectedYear} setSelectedYear={setSelectedYear} />
     </div>
   );
 };

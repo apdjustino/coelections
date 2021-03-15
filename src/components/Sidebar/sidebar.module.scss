@@ -1,3 +1,29 @@
 .container {
-    color: green;
+    width: 33%;
+    padding: 10px;
+    .title {
+        color: black;
+        font-size: 32px;
+        text-align: center;
+    }
+
+    .yearsContainer {
+        padding: 15px;
+        font-size: 24px;
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        .year {
+            margin-left: 10px;
+            margin-right: 10px;
+            cursor: pointer;
+            &:hover {
+                border-bottom: 2px solid black;
+            }
+
+            &.selected {
+                border-bottom: 2px solid black;
+            }
+        }
+    }
 }
