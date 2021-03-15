@@ -4,6 +4,10 @@ import "./index.css";
 import HomePage from "./pages/home";
 import mapboxgl from "mapbox-gl/dist/mapbox-gl-csp";
 import MapboxWorker from "worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker";
+import "normalize.css";
+import "@blueprintjs/core/lib/css/blueprint.css";
+import "@blueprintjs/icons/lib/css/blueprint-icons.css";
+import "@blueprintjs/select/lib/css/blueprint-select.css";
 
 mapboxgl.workerClass = MapboxWorker;
 mapboxgl.accessToken = "pk.eyJ1IjoiYWRhbXMtY291bnR5LWRlbXMiLCJhIjoiY2poZjhrMDhzMTZ5MjNhbzF2dmEzdXl1YSJ9.mIJcB8mMvQRbb-Wcl2z41w";
