@@ -16,6 +16,20 @@ export const initMapState = (map) => {
         "fill-color": "rgba(0,0,0,0.01)",
       },
     });
+
+    map.addLayer({
+      id: "precincts-selected",
+      type: "fill",
+      source: "precincts",
+      "source-layer": "CO_precincts-cd33af",
+      paint: {
+        "fill-outline-color": "black",
+        "fill-color": "yellow",
+        "fill-opacity": 0.33,
+      },
+      filter: ["==", ["get", "NAME"], ""],
+    });
+
     map.addLayer({
       id: "precincts-border",
       type: "line",
@@ -41,7 +55,7 @@ export const initMapState = (map) => {
   });
 };
 
-export const handleMapClick = (map, e) => {
+export const handleMapClick = (map, setSelectedMapData, e) => {
   const bbox = [
     [e.point.x - 5, e.point.y - 5],
     [e.point.x + 5, e.point.y + 5],
@@ -52,7 +66,24 @@ export const handleMapClick = (map, e) => {
     1
   )}${featureProperties.VTDST.slice(1)}`;
   // make request to API for precinct and turnout results
-  console.log(featureProperties);
+
+  let updatedSelectedMapData = { ...map.selectedMapData };
+  if (map.selectedMapData[featureProperties.NAME] !== undefined) {
+    delete updatedSelectedMapData[featureProperties.NAME];
+  } else {
+    updatedSelectedMapData[featureProperties.NAME] = featureProperties;
+  }
+
+  setSelectedMapData(updatedSelectedMapData);
+  map.selectedMapData = updatedSelectedMapData;
+
+  const paintExpression = ["match", ["get", "NAME"]];
+  const defaultExpression = ["==", ["get", "NAME"], ""];
+  Object.keys(updatedSelectedMapData).forEach((key) => {
+    paintExpression.push(updatedSelectedMapData[key].NAME, true);
+  });
+  paintExpression.push(false);
+  map.setFilter("precincts-selected", Object.keys(updatedSelectedMapData).length > 0 ? paintExpression : defaultExpression);
 };
 
 export const handleMapHover = (map, e) => {

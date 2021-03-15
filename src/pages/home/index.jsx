@@ -5,9 +5,22 @@ const HomePage = () => {
   const [lat, setLat] = useState(39.7645187);
   const [zoom, setZoom] = useState(11);
   const [map, setMap] = useState(null);
+  const [selectedMapData, setSelectedMapData] = useState({});
+  console.log(selectedMapData);
   return (
     <div>
-      <Map lng={lng} lat={lat} zoom={zoom} setLng={setLng} setLat={setLat} setZoom={setZoom} setMap={setMap} />
+      <Map
+        map={map}
+        lng={lng}
+        lat={lat}
+        zoom={zoom}
+        setLng={setLng}
+        setLat={setLat}
+        setZoom={setZoom}
+        setMap={setMap}
+        selectedMapData={selectedMapData}
+        setSelectedMapData={setSelectedMapData}
+      />
     </div>
   );
 };
