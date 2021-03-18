@@ -1,16 +1,18 @@
+import { getMapData } from "./promises";
+
 export const initMapState = (map) => {
   map.on("load", () => {
     console.log("loaded");
     map.addSource("precincts", {
       type: "vector",
-      url: "mapbox://adams-county-dems.6hs6fbtx",
+      url: "mapbox://adams-county-dems.86piddr5",
     });
 
     map.addLayer({
       id: "precincts",
       type: "fill",
       source: "precincts",
-      "source-layer": "CO_precincts-cd33af",
+      "source-layer": "precincts1-3jd2ar",
       paint: {
         "fill-outline-color": "black",
         "fill-color": "rgba(0,0,0,0.01)",
@@ -21,7 +23,7 @@ export const initMapState = (map) => {
       id: "precincts-selected",
       type: "fill",
       source: "precincts",
-      "source-layer": "CO_precincts-cd33af",
+      "source-layer": "precincts1-3jd2ar",
       paint: {
         "fill-outline-color": "black",
         "fill-color": "yellow",
@@ -34,7 +36,7 @@ export const initMapState = (map) => {
       id: "precincts-border",
       type: "line",
       source: "precincts",
-      "source-layer": "CO_precincts-cd33af",
+      "source-layer": "precincts1-3jd2ar",
       paint: {
         "line-color": "black",
         "line-width": 0.5,
@@ -45,7 +47,7 @@ export const initMapState = (map) => {
       id: "precincts-border-hover",
       type: "line",
       source: "precincts",
-      "source-layer": "CO_precincts-cd33af",
+      "source-layer": "precincts1-3jd2ar",
       paint: {
         "line-color": "black",
         "line-width": 1.5,
@@ -61,11 +63,18 @@ export const handleMapClick = (map, setSelectedMapData, e) => {
     [e.point.x + 5, e.point.y + 5],
   ];
   const features = map.queryRenderedFeatures(bbox, { layers: ["precincts"] });
-  const featureProperties = features[0].properties;
-  const precinctId = `${featureProperties.CD116FP.slice(1)}${featureProperties.SLDUST.slice(1)}${featureProperties.SLDLST.slice(
-    1
-  )}${featureProperties.VTDST.slice(1)}`;
-  // make request to API for precinct and turnout results
+  const clickedFeature = features[0];
+  console.log(clickedFeature);
+  let featureProperties = {};
+  if (!!clickedFeature) {
+    featureProperties = features[0].properties;
+    const precinctId = `${featureProperties.CD116FP.slice(1)}${featureProperties.SLDUST.slice(1)}${featureProperties.SLDLST.slice(
+      1
+    )}${featureProperties.VTDST.slice(1)}`;
+    // make request to API for precinct and turnout results
+  } else {
+    return;
+  }
 
   let updatedSelectedMapData = { ...map.selectedMapData };
   if (map.selectedMapData[featureProperties.NAME] !== undefined) {
@@ -99,4 +108,38 @@ export const handleMapHover = (map, e) => {
 
 export const handleMapHoverReset = (map) => {
   map.setFilter("precincts-border-hover", ["==", ["get", "NAME"], ""]);
+};
+
+export const mapData = async (year, contest) => {
+  let results = {};
+  try {
+    const mapData = await getMapData(year, contest);
+    results = mapData;
+  } catch (error) {
+    console.log(error);
+  }
+  return results;
+};
+
+export const paintMap = async (map, year, contest) => {
+  try {
+    const { data } = await getMapData(year, contest);
+    const { Items } = data;
+    console.log(Items);
+    const filterStatement = ["match", ["get", "NAME"]];
+    const paintStatement = ["match", ["get", "NAME"]];
+    Items.forEach((item) => {
+      filterStatement.push(item.Precinct, true);
+      paintStatement.push(item.Precinct, item["Winning Party"] === "Democratic Party" || item["Winning Party"] === "yes" ? "blue" : "red");
+    });
+    filterStatement.push(false);
+    paintStatement.push("rgba(0,0,0,0.01)");
+    map.setFilter("precincts", filterStatement);
+    map.setFilter("precincts-border", filterStatement);
+    map.setFilter("precincts-border-hover", filterStatement);
+    map.setPaintProperty("precincts", "fill-opacity", 0.35);
+    map.setPaintProperty("precincts", "fill-color", paintStatement);
+  } catch (error) {
+    console.log(error);
+  }
 };

@@ -3,8 +3,9 @@ import React, { useEffect, useState } from "react";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { ItemRenderer, Select } from "@blueprintjs/select";
 import { contests } from "../../state/contests";
+import { paintMap } from "../../state/map";
 
-const Sidebar = ({ selectedYear, setSelectedYear, selectedContest, setSelectedContest }) => {
+const Sidebar = ({ selectedYear, setSelectedYear, selectedContest, setSelectedContest, map }) => {
   const years = [2012, 2014, 2016, 2018, 2020];
   const [contestList, setContestList] = useState([]);
   useEffect(async () => {
@@ -29,6 +30,7 @@ const Sidebar = ({ selectedYear, setSelectedYear, selectedContest, setSelectedCo
                 [2012, 2016, 2020].includes(year) ? item.Contest.startsWith("President/Vice President") : item.Contest.startsWith("Governor")
               );
               setSelectedContest(initContest);
+              paintMap(map, year, initContest.Contest);
             }}
           >
             {year}
@@ -40,10 +42,11 @@ const Sidebar = ({ selectedYear, setSelectedYear, selectedContest, setSelectedCo
         <Select
           items={contestList}
           itemRenderer={(item, { modifiers, handleClick }) => (
-            <MenuItem key={item} text={item.Contest} label={item.Year} active={modifiers.active} onClick={handleClick} />
+            <MenuItem key={item.Contest} text={item.Contest} label={item.Year} active={modifiers.active} onClick={handleClick} />
           )}
-          onItemSelect={(item, e) => {
+          onItemSelect={async (item, e) => {
             setSelectedContest(item);
+            paintMap(map, selectedYear, item.Contest);
           }}
           activeItem={selectedContest}
         >

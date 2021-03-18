@@ -26,7 +26,13 @@ const HomePage = () => {
         selectedMapData={selectedMapData}
         setSelectedMapData={setSelectedMapData}
       />
-      <Sidebar selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedContest={selectedContest} setSelectedContest={setSelectedContest} />
+      <Sidebar
+        selectedYear={selectedYear}
+        setSelectedYear={setSelectedYear}
+        selectedContest={selectedContest}
+        setSelectedContest={setSelectedContest}
+        map={map}
+      />
     </div>
   );
 };
