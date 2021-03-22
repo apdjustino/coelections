@@ -30,6 +30,11 @@
 
     .contestSelectContainer {
         padding: 15px;
-        margin-left: 15px;
+        margin: 15px;
+        width: 100%;
+
+        .button {
+            width: 400px;
+        }
     }
 }

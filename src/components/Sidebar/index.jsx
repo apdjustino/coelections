@@ -53,7 +53,7 @@ const Sidebar = ({ selectedYear, setSelectedYear, selectedContest, setSelectedCo
           }}
           activeItem={selectedContest}
         >
-          <Button text={!!selectedContest ? selectedContest.Contest : ""} rightIcon="caret-down" />
+          <Button className={style.button} text={!!selectedContest ? selectedContest.Contest : ""} rightIcon="caret-down" />
         </Select>
       </div>
     </div>
