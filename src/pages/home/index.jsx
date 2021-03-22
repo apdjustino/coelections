@@ -13,6 +13,7 @@ const HomePage = () => {
   const [selectedYear, setSelectedYear] = useState(2020);
   const [selectedContest, setSelectedContest] = useState("");
   const [isSpinning, setIsSpinning] = useState(true);
+  const [totalData, setTotalData] = useState([]);
 
   return (
     <div className={style.container}>
@@ -38,6 +39,9 @@ const HomePage = () => {
         map={map}
         setIsSpinning={setIsSpinning}
         selectedMapData={selectedMapData}
+        setSelectedMapData={setSelectedMapData}
+        totalData={totalData}
+        setTotalData={setTotalData}
       />
     </div>
   );

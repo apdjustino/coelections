@@ -4,17 +4,32 @@ import { Button, MenuItem } from "@blueprintjs/core";
 import { ItemRenderer, Select } from "@blueprintjs/select";
 import { contests } from "../../state/contests";
 import { paintMap } from "../../state/map";
-import { groupBy, flattenDeep, orderBy } from "lodash";
+import { getPrecinctData } from "../../state/map/promises";
+import { groupBy, flattenDeep, orderBy, isEmpty } from "lodash";
 import Table from "../Table";
 
-const Sidebar = ({ selectedMapData, selectedYear, setSelectedYear, selectedContest, setSelectedContest, map, setIsSpinning }) => {
+const Sidebar = ({
+  selectedMapData,
+  setSelectedMapData,
+  totalData,
+  setTotalData,
+  selectedYear,
+  setSelectedYear,
+  selectedContest,
+  setSelectedContest,
+  map,
+  setIsSpinning,
+}) => {
   const years = [2012, 2014, 2016, 2018, 2020];
   const [contestList, setContestList] = useState([]);
+
   useEffect(async () => {
     const { data } = await contests(selectedYear);
     setContestList(data.Items);
     const initContest = data.Items.find((item) => item.Contest === "President/Vice President");
     setSelectedContest(initContest);
+    const initPrecinctResponse = await getPrecinctData("total", initContest);
+    setTotalData(initPrecinctResponse.data.Items);
     paintMap(map, selectedYear, initContest.Contest, setIsSpinning);
   }, [map]);
 
@@ -33,15 +48,28 @@ const Sidebar = ({ selectedMapData, selectedYear, setSelectedYear, selectedConte
     },
   ];
 
-  const tableData = Object.keys(selectedMapData).map((key) => selectedMapData[key]);
-  const resultDataGrouped = groupBy(flattenDeep(tableData.map((d) => d.results)), "Candidate");
+  let resultData = [];
+  if (!isEmpty(selectedMapData)) {
+    const tableData = Object.keys(selectedMapData).map((key) => selectedMapData[key]);
+    const resultDataGrouped = groupBy(flattenDeep(tableData.map((d) => d.results)), "Candidate");
 
-  const resultData = Object.keys(resultDataGrouped).map((key) => {
-    const party = resultDataGrouped[key][0].Party;
-    const candidate = key;
-    const totalVotes = resultDataGrouped[key].map((d) => parseInt(d["Candidate Votes"])).reduce((a, b) => a + b);
-    return { candidate, party, totalVotes };
-  });
+    resultData = Object.keys(resultDataGrouped).map((key) => {
+      const party = resultDataGrouped[key][0].Party;
+      const candidate = key;
+      const totalVotes = resultDataGrouped[key].map((d) => parseInt(d["Candidate Votes"])).reduce((a, b) => a + b);
+      return { candidate, party, totalVotes };
+    });
+  } else {
+    resultData = orderBy(
+      totalData.map((d) => ({
+        party: d.Party,
+        candidate: d.Candidate,
+        totalVotes: parseInt(d["Candidate Votes"]),
+      })),
+      ["totalVotes"],
+      ["desc"]
+    );
+  }
 
   console.log(resultData);
 
@@ -62,6 +90,9 @@ const Sidebar = ({ selectedMapData, selectedYear, setSelectedYear, selectedConte
               );
               setSelectedContest(initContest);
               map.selectedContest = initContest;
+              setSelectedMapData({});
+              const initPrecinctResponse = await getPrecinctData("total", initContest);
+              setTotalData(initPrecinctResponse.data.Items);
               paintMap(map, year, initContest.Contest, setIsSpinning);
             }}
           >
@@ -78,6 +109,9 @@ const Sidebar = ({ selectedMapData, selectedYear, setSelectedYear, selectedConte
           )}
           onItemSelect={async (item, e) => {
             setSelectedContest(item);
+            setSelectedMapData({});
+            const initPrecinctResponse = await getPrecinctData("total", item);
+            setTotalData(initPrecinctResponse.data.Items);
             map.selectedContest = item;
             paintMap(map, selectedYear, item.Contest, setIsSpinning);
           }}
