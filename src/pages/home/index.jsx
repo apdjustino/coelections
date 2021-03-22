@@ -25,6 +25,7 @@ const HomePage = () => {
         setMap={setMap}
         selectedMapData={selectedMapData}
         setSelectedMapData={setSelectedMapData}
+        selectedContest={selectedContest}
       />
       <Sidebar
         selectedYear={selectedYear}

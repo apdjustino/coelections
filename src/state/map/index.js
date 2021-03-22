@@ -1,4 +1,4 @@
-import { getMapData } from "./promises";
+import { getMapData, getPrecinctData } from "./promises";
 
 export const initMapState = (map) => {
   map.on("load", () => {
@@ -57,7 +57,7 @@ export const initMapState = (map) => {
   });
 };
 
-export const handleMapClick = (map, setSelectedMapData, e) => {
+export const handleMapClick = async (map, setSelectedMapData, e) => {
   const bbox = [
     [e.point.x - 5, e.point.y - 5],
     [e.point.x + 5, e.point.y + 5],
@@ -68,10 +68,9 @@ export const handleMapClick = (map, setSelectedMapData, e) => {
   let featureProperties = {};
   if (!!clickedFeature) {
     featureProperties = features[0].properties;
-    const precinctId = `${featureProperties.CD116FP.slice(1)}${featureProperties.SLDUST.slice(1)}${featureProperties.SLDLST.slice(
-      1
-    )}${featureProperties.VTDST.slice(1)}`;
     // make request to API for precinct and turnout results
+    const precinctResponse = await getPrecinctData(featureProperties.NAME, map.selectedContest);
+    console.log(precinctResponse);
   } else {
     return;
   }

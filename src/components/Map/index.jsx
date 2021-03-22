@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl/dist/mapbox-gl-csp";
 import { initMapState, handleMapClick, handleMapHover, handleMapHoverReset } from "../../state/map";
 
-const Map = ({ lat, lng, zoom, setLng, setLat, setZoom, setMap, selectedMapData, setSelectedMapData }) => {
+const Map = ({ lat, lng, zoom, setLng, setLat, setZoom, setMap, selectedMapData, setSelectedMapData, selectedContest }) => {
   const mapContainer = useRef();
 
   useEffect(() => {

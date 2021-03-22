@@ -30,6 +30,7 @@ const Sidebar = ({ selectedYear, setSelectedYear, selectedContest, setSelectedCo
                 [2012, 2016, 2020].includes(year) ? item.Contest.startsWith("President/Vice President") : item.Contest.startsWith("Governor")
               );
               setSelectedContest(initContest);
+              map.selectedContest = initContest;
               paintMap(map, year, initContest.Contest);
             }}
           >
@@ -46,6 +47,7 @@ const Sidebar = ({ selectedYear, setSelectedYear, selectedContest, setSelectedCo
           )}
           onItemSelect={async (item, e) => {
             setSelectedContest(item);
+            map.selectedContest = item;
             paintMap(map, selectedYear, item.Contest);
           }}
           activeItem={selectedContest}
