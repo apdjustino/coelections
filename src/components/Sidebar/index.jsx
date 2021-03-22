@@ -74,29 +74,51 @@ const Sidebar = ({
 
   console.log(resultData);
 
+  const handleYearChange = async (year) => {
+    //get contest list
+    const { data } = await contests(year);
+    const initContest = data.Items.find((item) =>
+      [2012, 2016, 2020].includes(year) ? item.Contest.startsWith("President/Vice President") : item.Contest.startsWith("Governor")
+    );
+    //get total precinct data
+    const initPrecinctResponse = await getPrecinctData("total", initContest);
+
+    // set state
+    setSelectedYear(year);
+    setContestList(data.Items);
+    setSelectedContest(initContest);
+    map.selectedContest = initContest;
+    map.selectedMapData = {};
+    setSelectedMapData({});
+    setTotalData(initPrecinctResponse.data.Items);
+
+    //update map
+    map.setFilter("precincts-selected", ["==", ["get", "NAME"], ""]);
+    paintMap(map, year, initContest.Contest, setIsSpinning);
+  };
+
+  const handleContestChange = async (item, e) => {
+    // get total data
+    const initPrecinctResponse = await getPrecinctData("total", item);
+
+    // update state
+    setSelectedContest(item);
+    setSelectedMapData({});
+    setTotalData(initPrecinctResponse.data.Items);
+    map.selectedMapData = {};
+    map.selectedContest = item;
+
+    //update map
+    map.setFilter("precincts-selected", ["==", ["get", "NAME"], ""]);
+    paintMap(map, selectedYear, item.Contest, setIsSpinning);
+  };
+
   return (
     <div className={style.container}>
       <div className={style.title}>Colorado Elections: Precinct Level Results 2012 - 2020</div>
       <div className={style.yearsContainer}>
         {years.map((year, i) => (
-          <div
-            key={i}
-            className={`${style.year} ${year === selectedYear ? style.selected : ""}`}
-            onClick={async () => {
-              setSelectedYear(year);
-              const { data } = await contests(year);
-              setContestList(data.Items);
-              const initContest = data.Items.find((item) =>
-                [2012, 2016, 2020].includes(year) ? item.Contest.startsWith("President/Vice President") : item.Contest.startsWith("Governor")
-              );
-              setSelectedContest(initContest);
-              map.selectedContest = initContest;
-              setSelectedMapData({});
-              const initPrecinctResponse = await getPrecinctData("total", initContest);
-              setTotalData(initPrecinctResponse.data.Items);
-              paintMap(map, year, initContest.Contest, setIsSpinning);
-            }}
-          >
+          <div key={i} className={`${style.year} ${year === selectedYear ? style.selected : ""}`} onClick={() => handleYearChange(year)}>
             {year}
           </div>
         ))}
@@ -108,14 +130,7 @@ const Sidebar = ({
           itemRenderer={(item, { modifiers, handleClick }) => (
             <MenuItem key={item.Contest} text={item.Contest} label={item.Year} active={modifiers.active} onClick={handleClick} />
           )}
-          onItemSelect={async (item, e) => {
-            setSelectedContest(item);
-            setSelectedMapData({});
-            const initPrecinctResponse = await getPrecinctData("total", item);
-            setTotalData(initPrecinctResponse.data.Items);
-            map.selectedContest = item;
-            paintMap(map, selectedYear, item.Contest, setIsSpinning);
-          }}
+          onItemSelect={(item, e) => handleContestChange(item, e)}
           activeItem={selectedContest}
         >
           <Button className={style.button} text={!!selectedContest ? selectedContest.Contest : ""} rightIcon="caret-down" />
