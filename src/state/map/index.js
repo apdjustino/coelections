@@ -69,29 +69,29 @@ export const handleMapClick = async (map, setSelectedMapData, e) => {
   if (!!clickedFeature) {
     featureProperties = features[0].properties;
     // make request to API for precinct and turnout results
-    const precinctResponse = await getPrecinctData(featureProperties.NAME, map.selectedContest);
-    console.log(precinctResponse);
+    let updatedSelectedMapData = { ...map.selectedMapData };
+    if (map.selectedMapData[featureProperties.NAME] !== undefined) {
+      delete updatedSelectedMapData[featureProperties.NAME];
+    } else {
+      const precinctResponse = await getPrecinctData(featureProperties.NAME, map.selectedContest);
+      const { data } = precinctResponse;
+      const precinctData = { demographics: featureProperties, results: data.Items };
+      updatedSelectedMapData[featureProperties.NAME] = precinctData;
+    }
+
+    setSelectedMapData(updatedSelectedMapData);
+    map.selectedMapData = updatedSelectedMapData;
+
+    const paintExpression = ["match", ["get", "NAME"]];
+    const defaultExpression = ["==", ["get", "NAME"], ""];
+    Object.keys(updatedSelectedMapData).forEach((key) => {
+      paintExpression.push(key, true);
+    });
+    paintExpression.push(false);
+    map.setFilter("precincts-selected", Object.keys(updatedSelectedMapData).length > 0 ? paintExpression : defaultExpression);
   } else {
     return;
   }
-
-  let updatedSelectedMapData = { ...map.selectedMapData };
-  if (map.selectedMapData[featureProperties.NAME] !== undefined) {
-    delete updatedSelectedMapData[featureProperties.NAME];
-  } else {
-    updatedSelectedMapData[featureProperties.NAME] = featureProperties;
-  }
-
-  setSelectedMapData(updatedSelectedMapData);
-  map.selectedMapData = updatedSelectedMapData;
-
-  const paintExpression = ["match", ["get", "NAME"]];
-  const defaultExpression = ["==", ["get", "NAME"], ""];
-  Object.keys(updatedSelectedMapData).forEach((key) => {
-    paintExpression.push(updatedSelectedMapData[key].NAME, true);
-  });
-  paintExpression.push(false);
-  map.setFilter("precincts-selected", Object.keys(updatedSelectedMapData).length > 0 ? paintExpression : defaultExpression);
 };
 
 export const handleMapHover = (map, e) => {

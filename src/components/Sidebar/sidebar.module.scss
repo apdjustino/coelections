@@ -37,4 +37,21 @@
             width: 400px;
         }
     }
+
+    .selectedPrecinctsList {
+        padding: 15px;
+        margin: 15px;
+        width: 100%;
+
+        .listTitle {
+            margin-bottom: 8px;
+            text-decoration: underline;
+        }
+    }
+
+    .tableContainer {
+        padding: 15px;
+        height: 320px;
+        overflow: scroll;
+    }
 }

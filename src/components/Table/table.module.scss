@@ -1,0 +1,39 @@
+.table {
+  table-layout: fixed;
+  width: 100%;
+  border-spacing: 0;
+  font-size: 18px;
+
+  thead {
+    cursor: default;
+    tr {
+      td {
+        padding: 10px;
+        font-weight: normal;
+        color: black;
+        border-bottom: 1px solid black;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        padding: 10px 10px 9px;
+        color: black;
+        position: relative;
+
+        &:first-of-type {
+          border-left: none;
+        }
+        &:last-of-type {
+          border-right: none;
+        }
+      }
+
+      &:hover {
+        background-color: grey;
+      }
+    }
+  }
+}

@@ -37,6 +37,7 @@ const HomePage = () => {
         setSelectedContest={setSelectedContest}
         map={map}
         setIsSpinning={setIsSpinning}
+        selectedMapData={selectedMapData}
       />
     </div>
   );
