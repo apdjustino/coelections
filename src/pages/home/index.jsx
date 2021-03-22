@@ -1,6 +1,7 @@
 import style from "./home.module.scss";
 
 import React, { useState, useEffect } from "react";
+import { Spinner } from "@blueprintjs/core";
 import Map from "../../components/Map";
 import Sidebar from "../../components/Sidebar";
 const HomePage = () => {
@@ -11,9 +12,11 @@ const HomePage = () => {
   const [selectedMapData, setSelectedMapData] = useState({});
   const [selectedYear, setSelectedYear] = useState(2020);
   const [selectedContest, setSelectedContest] = useState("");
+  const [isSpinning, setIsSpinning] = useState(true);
 
   return (
     <div className={style.container}>
+      {isSpinning ? <Spinner className={style.spinner} /> : null}
       <Map
         map={map}
         lng={lng}
@@ -33,6 +36,7 @@ const HomePage = () => {
         selectedContest={selectedContest}
         setSelectedContest={setSelectedContest}
         map={map}
+        setIsSpinning={setIsSpinning}
       />
     </div>
   );

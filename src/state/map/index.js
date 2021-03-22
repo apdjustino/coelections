@@ -120,25 +120,28 @@ export const mapData = async (year, contest) => {
   return results;
 };
 
-export const paintMap = async (map, year, contest) => {
-  try {
-    const { data } = await getMapData(year, contest);
-    const { Items } = data;
-    console.log(Items);
-    const filterStatement = ["match", ["get", "NAME"]];
-    const paintStatement = ["match", ["get", "NAME"]];
-    Items.forEach((item) => {
-      filterStatement.push(item.Precinct, true);
-      paintStatement.push(item.Precinct, item["Winning Party"] === "Democratic Party" || item["Winning Party"] === "yes" ? "blue" : "red");
-    });
-    filterStatement.push(false);
-    paintStatement.push("rgba(0,0,0,0.01)");
-    map.setFilter("precincts", filterStatement);
-    map.setFilter("precincts-border", filterStatement);
-    map.setFilter("precincts-border-hover", filterStatement);
-    map.setPaintProperty("precincts", "fill-opacity", 0.35);
-    map.setPaintProperty("precincts", "fill-color", paintStatement);
-  } catch (error) {
-    console.log(error);
+export const paintMap = async (map, year, contest, setIsSpinning) => {
+  if (!!map) {
+    try {
+      setIsSpinning(true);
+      const { data } = await getMapData(year, contest);
+      const { Items } = data;
+      console.log(Items);
+      const filterStatement = ["match", ["get", "NAME"]];
+      const paintStatement = ["match", ["get", "NAME"]];
+      Items.forEach((item) => {
+        filterStatement.push(item.Precinct, true);
+        paintStatement.push(item.Precinct, item["Winning Party"] === "Democratic Party" || item["Winning Party"] === "yes" ? "blue" : "red");
+      });
+      filterStatement.push(false);
+      paintStatement.push("rgba(0,0,0,0.01)");
+      map.setFilter("precincts", filterStatement);
+      map.setFilter("precincts-border", filterStatement);
+      map.setPaintProperty("precincts", "fill-opacity", 0.35);
+      map.setPaintProperty("precincts", "fill-color", paintStatement);
+      setIsSpinning(false);
+    } catch (error) {
+      console.log(error);
+    }
   }
 };

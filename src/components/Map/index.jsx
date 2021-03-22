@@ -16,6 +16,7 @@ const Map = ({ lat, lng, zoom, setLng, setLat, setZoom, setMap, selectedMapData,
 
     initMapState(map);
     map.selectedMapData = {};
+    map.selectedContest = { Year: 2020, Contest: "President/Vice President" };
     map.on("click", (e) => handleMapClick(map, setSelectedMapData, e));
     map.on("mousemove", "precincts", (e) => handleMapHover(map, e));
 
