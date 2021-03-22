@@ -1,5 +1,6 @@
 import style from "./sidebar.module.scss";
 import React, { useEffect, useState } from "react";
+import { format } from "d3-format";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { ItemRenderer, Select } from "@blueprintjs/select";
 import { contests } from "../../state/contests";
@@ -44,7 +45,7 @@ const Sidebar = ({
     },
     {
       name: "Votes",
-      render: (d) => d.totalVotes,
+      render: (d) => format(",")(d.totalVotes),
     },
   ];
 
