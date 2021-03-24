@@ -50,7 +50,9 @@ const Sidebar = ({
   ];
 
   let resultData = [];
+  let turnoutData = {};
   if (!isEmpty(selectedMapData)) {
+    console.log(selectedMapData);
     const tableData = Object.keys(selectedMapData).map((key) => selectedMapData[key]);
     const resultDataGrouped = groupBy(flattenDeep(tableData.map((d) => d.results)), "Candidate");
 
@@ -65,6 +67,22 @@ const Sidebar = ({
       }
       return { candidate, party, totalVotes };
     });
+
+    turnoutData["Active Voters"] = Object.keys(selectedMapData)
+      .map((key) => parseInt(selectedMapData[key]["turnout"][0]["Active Voters"]))
+      .reduce((a, b) => a + b);
+
+    turnoutData["Ballots Cast"] = Object.keys(selectedMapData)
+      .map((key) => parseInt(selectedMapData[key]["turnout"][0]["Ballots Cast"]))
+      .reduce((a, b) => a + b);
+
+    turnoutData["Inactive Voters"] = Object.keys(selectedMapData)
+      .map((key) => parseInt(selectedMapData[key]["turnout"][0]["Inactive Voters"]))
+      .reduce((a, b) => a + b);
+
+    turnoutData["Total Voters"] = Object.keys(selectedMapData)
+      .map((key) => parseInt(selectedMapData[key]["turnout"][0]["Total Voters"]))
+      .reduce((a, b) => a + b);
   } else {
     resultData =
       !!totalData[0] && totalData[0].Party === "n/a"
@@ -83,9 +101,7 @@ const Sidebar = ({
             ["desc"]
           );
   }
-
-  console.log(resultData);
-
+  console.log(turnoutData);
   const handleYearChange = async (year) => {
     //get contest list
     const { data } = await contests(year);
@@ -151,6 +167,21 @@ const Sidebar = ({
       <div className={style.selectedPrecinctsList}>
         <div className={style.listTitle}>Selected Precincts: </div>
         <div className={style.list}>{Object.keys(selectedMapData).join(", ")}</div>
+      </div>
+      <div className={style.selectedPrecinctsList}>
+        <div className={style.listTitle}>Turnout Statistics:</div>
+        {!isEmpty(selectedMapData) ? (
+          <div className={style.stats}>
+            <div>Active Voters: {turnoutData["Active Voters"]}</div>
+            <div>Inactive Voters: {turnoutData["Inactive Voters"]}</div>
+            <div>Total Voters: {turnoutData["Total Voters"]}</div>
+            <div>Ballots Cast: {turnoutData["Ballots Cast"]}</div>
+            <div>Turnout: {format(".2%")(turnoutData["Ballots Cast"] / turnoutData["Total Voters"])}</div>
+            <div>Under votes: {format(".2%")(1 - resultData.map((d) => d.totalVotes).reduce((a, b) => a + b) / turnoutData["Ballots Cast"])}</div>
+          </div>
+        ) : (
+          <div>N/A</div>
+        )}
       </div>
       <div className={style.tableContainer}>
         <Table data={orderBy(resultData, ["totalVotes"], ["desc"])} columns={columns} />

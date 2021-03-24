@@ -4,7 +4,6 @@ import { feature, featureCollection } from "@turf/helpers";
 
 export const initMapState = (map) => {
   map.on("load", () => {
-    console.log("loaded");
     map.addSource("precincts", {
       type: "vector",
       url: "mapbox://adams-county-dems.9muwbeaf",
@@ -64,7 +63,6 @@ export const handleMapClick = async (map, setSelectedMapData, e) => {
     [e.point.x - 5, e.point.y - 5],
     [e.point.x + 5, e.point.y + 5],
   ];
-  console.log(map.getZoom());
   const features = map.queryRenderedFeatures(bbox, { layers: ["precincts"] });
   const clickedFeature = features[0];
   console.log(clickedFeature);
@@ -76,9 +74,10 @@ export const handleMapClick = async (map, setSelectedMapData, e) => {
     if (map.selectedMapData[featureProperties.NAME] !== undefined) {
       delete updatedSelectedMapData[featureProperties.NAME];
     } else {
-      const precinctResponse = await getPrecinctData(featureProperties.NAME, map.selectedContest);
-      const { data } = precinctResponse;
-      const precinctData = { demographics: featureProperties, results: data.Items };
+      const precinctResponse = await getPrecinctData(featureProperties.NAME, map.selectedContest, false);
+      const turnoutData = precinctResponse[1].data;
+      const { data } = precinctResponse[0];
+      const precinctData = { demographics: featureProperties, results: data.Items, turnout: turnoutData.Items };
       updatedSelectedMapData[featureProperties.NAME] = precinctData;
     }
 
@@ -129,8 +128,8 @@ export const paintMap = async (map, year, contest, setIsSpinning) => {
       setIsSpinning(true);
       map.jumpTo({ center: [-104.9951972, 39.7645187], zoom: 6.5 });
       const { data } = await getMapData(year, contest);
+      setIsSpinning(false);
       const { Items } = data;
-      console.log(Items);
       const filterStatement = ["match", ["get", "NAME"]];
       const paintStatement = ["match", ["get", "NAME"]];
       Items.forEach((item) => {
@@ -143,12 +142,10 @@ export const paintMap = async (map, year, contest, setIsSpinning) => {
       map.setFilter("precincts-border", filterStatement);
       map.setPaintProperty("precincts", "fill-opacity", 0.35);
       map.setPaintProperty("precincts", "fill-color", paintStatement);
-      const test = map.querySourceFeatures("precincts", { sourceLayer: "precincts1", filter: filterStatement });
-      const fc = featureCollection(test.map((f) => feature(f.geometry)));
-      console.log(fc);
+      const allPrecincts = map.querySourceFeatures("precincts", { sourceLayer: "precincts1", filter: filterStatement });
+      const fc = featureCollection(allPrecincts.map((f) => feature(f.geometry)));
       const boundingBox = bbox(fc);
       map.fitBounds(boundingBox);
-      setIsSpinning(false);
     } catch (error) {
       console.log(error);
     }
