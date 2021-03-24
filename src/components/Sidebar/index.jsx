@@ -40,12 +40,12 @@ const Sidebar = ({
       render: (d) => `${d.candidate}`,
     },
     {
-      name: "Candidate",
+      name: "Party",
       render: (d) => d.party,
     },
     {
       name: "Votes",
-      render: (d) => format(",")(d.totalVotes),
+      render: (d) => (d.party === "n/a" ? d.totalVotes : format(",")(d.totalVotes)),
     },
   ];
 
@@ -57,19 +57,31 @@ const Sidebar = ({
     resultData = Object.keys(resultDataGrouped).map((key) => {
       const party = resultDataGrouped[key][0].Party;
       const candidate = key;
-      const totalVotes = resultDataGrouped[key].map((d) => parseInt(d["Candidate Votes"])).reduce((a, b) => a + b);
+      let totalVotes = resultDataGrouped[key].map((d) => parseInt(d["Candidate Votes"])).reduce((a, b) => a + b);
+      if (party === "n/a") {
+        const yesVotes = resultDataGrouped[key].map((d) => parseInt(d["Yes Votes"])).reduce((a, b) => a + b);
+        const noVotes = resultDataGrouped[key].map((d) => parseInt(d["No Votes"])).reduce((a, b) => a + b);
+        totalVotes = `Yes: ${yesVotes}, No: ${noVotes}`;
+      }
       return { candidate, party, totalVotes };
     });
   } else {
-    resultData = orderBy(
-      totalData.map((d) => ({
-        party: d.Party,
-        candidate: d.Candidate,
-        totalVotes: parseInt(d["Candidate Votes"]),
-      })),
-      ["totalVotes"],
-      ["desc"]
-    );
+    resultData =
+      !!totalData[0] && totalData[0].Party === "n/a"
+        ? totalData.map((d) => ({
+            party: d.Party,
+            candidate: d.Candidate,
+            totalVotes: `Yes: ${d["Yes Votes"]}, No: ${d["No Votes"]}`,
+          }))
+        : orderBy(
+            totalData.map((d) => ({
+              party: d.Party,
+              candidate: d.Candidate,
+              totalVotes: parseInt(d["Candidate Votes"]),
+            })),
+            ["totalVotes"],
+            ["desc"]
+          );
   }
 
   console.log(resultData);
